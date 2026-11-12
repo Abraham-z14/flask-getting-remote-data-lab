@@ -1,69 +1,212 @@
 # Getting Remote Data Lab
 
-## The Scenario 
-It is time to practice building out your own class for retrieving remote data. In this lab, you are tasked with building a generic GetRequester class. This class will be able to take in a URL on initialization and send an HTTP GET request on command. You will also need to build a method for dealing with requests that return JSON.
+A Python project that demonstrates how to retrieve remote data from an API using HTTP GET requests and convert JSON responses into Python data structures.
 
-## Tools and Resources 
-- [GitHub Repo](https://github.com/learn-co-curriculum/flask-getting-remote-data-lab)
-- [GET - Mozilla](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET)
-- [HTTP methods - Mozilla](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods)
-- [requests](https://requests.readthedocs.io/en/latest/)
-- [Python JSON](https://docs.python.org/3/library/json.html)
+## Overview
 
-## Instructions
+This lab implements a reusable `GetRequester` class.
 
-### Set Up
+The class:
 
-Before we begin coding, let's complete the initial setup for this lesson: 
+- stores a remote URL,
+- sends an HTTP GET request,
+- returns the raw response body,
+- converts JSON response data into Python objects.
 
-* Fork and Clone
-  * For this lesson, you will need the following GitHub Repo:
-  * Go to the provided GitHub repository link.
-  * Fork the repository to your GitHub account.
-  * Clone the forked repository to your local machine.
-* Open and Run File
-  * Open the project in VSCode.
-  * Run pipenv install to install all necessary dependencies.
-  * Run pipenv shell to open instance of python shell
+## Endpoint
 
-### Task 1: Define the Problem
+The project uses the following remote JSON endpoint:
 
-* Build a class to interact with api
-* Get the data
-* Convert to json data
+```text
+https://learn-co-curriculum.github.io/json-site-example/endpoints/people.json
+```
 
-### Task 2: Determine the Design
+The endpoint returns information about several people and their occupations.
 
-* Endpoint: https://learn-co-curriculum.github.io/json-site-example/endpoints/people.json.
-  * ```get_response_body```
-    * Query endpoint
-  * ```load_json```
-    * Convert to json data
+## GetRequester Class
 
-#### Task 3: Develop, Test, and Refine the Code
+The class is located in:
 
-* Create feature branch
-* Build get_response_body to query endpoint
-* Convert endpoint data to json and return the data
-* Push feature branch and open a PR on GitHub
-* Merge to main
+```text
+lib/GetRequester.py
+```
 
-#### Task 4: Document and Maintain
+### Initialization
 
-Best Practice documentation steps:
-* Add comments to code to explain purpose and logic, clarifying intent / functionality of code to other developers.
-* Add screenshot of completed work included in Markdown in README.
-* Update README text to reflect the functionality of the application following https://makeareadme.com.
-* Delete any stale branches on GitHub
-* Remove unnecessary/commented out code
-* If needed, update git ignore to remove sensitive data
+A `GetRequester` object is initialized with a URL:
 
-## Submission
+```python
+requester = GetRequester(
+    "https://learn-co-curriculum.github.io/json-site-example/endpoints/people.json"
+)
+```
 
-Once all tests are passing and working code is pushed to the GitHub main branch, submit your GitHub repo through Canvas using CodeGrade.
+The URL is stored for later HTTP requests.
 
-## Grading Criteria
+## get_response_body()
 
-The application passes all test suites.
-* Get json data
-* Convert to Json
+The `get_response_body()` method sends an HTTP GET request using the `requests` package.
+
+```python
+response = requests.get(self.url)
+```
+
+It returns:
+
+```python
+response.content
+```
+
+This means the raw HTTP response body is returned as bytes.
+
+Example response:
+
+```text
+[
+  {
+    "name": "Daniel",
+    "occupation": "LG Fridge Salesman"
+  },
+  ...
+]
+```
+
+## load_json()
+
+The `load_json()` method retrieves the raw response body and converts the JSON into Python data structures.
+
+```python
+response_body = self.get_response_body()
+return json.loads(response_body)
+```
+
+The JSON array becomes a Python list containing dictionaries.
+
+Example:
+
+```python
+[
+    {
+        "name": "Daniel",
+        "occupation": "LG Fridge Salesman"
+    },
+    {
+        "name": "Joe",
+        "occupation": "WiFi Fixer"
+    },
+    {
+        "name": "Avi",
+        "occupation": "DJ"
+    },
+    {
+        "name": "Howard",
+        "occupation": "Mountain Legend"
+    }
+]
+```
+
+## Data Flow
+
+```text
+URL
+ ↓
+HTTP GET request
+ ↓
+response.content
+ ↓
+raw JSON bytes
+ ↓
+json.loads()
+ ↓
+Python list and dictionaries
+```
+
+## Project Structure
+
+```text
+flask-getting-remote-data-lab/
+├── images/
+│   └── tests-passing.png
+├── lib/
+│   ├── GetRequester.py
+│   └── testing/
+│       ├── conftest.py
+│       └── get_requester_test.py
+├── Pipfile
+├── Pipfile.lock
+├── pytest.ini
+└── README.md
+```
+
+## Setup
+
+Install the project dependencies:
+
+```bash
+pipenv install
+```
+
+Enter the virtual environment:
+
+```bash
+pipenv shell
+```
+
+The project uses:
+
+```text
+Python 3.8.13
+```
+
+## Dependencies
+
+The project uses:
+
+- `requests` for HTTP GET requests
+- `json` from the Python standard library for JSON parsing
+- `pytest` for automated testing
+
+## Testing
+
+Run the test suite with:
+
+```bash
+python -m pytest -v
+```
+
+Current result:
+
+```text
+2 passed
+```
+
+The tests verify that:
+
+- `get_response_body()` returns the raw response body,
+- `load_json()` converts the response into the expected Python objects.
+
+## Completed Test Suite
+
+![Passing remote data tests](images/tests-passing.png)
+
+## Key Concepts
+
+This lab demonstrates the difference between:
+
+```python
+response.content
+```
+
+which returns the raw HTTP response body as bytes, and:
+
+```python
+json.loads(response_body)
+```
+
+which converts JSON data into native Python objects.
+
+This pattern can be reused in applications that need to consume remote APIs.
+
+## Author
+
+Abraham Zarate
